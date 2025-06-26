@@ -3,115 +3,68 @@ package com.example;
 import java.util.Scanner;
 
 public class App {
-    static char[][] board;
-    static char currentPlayer;
-
     public static void main(String[] args) {
-        board = new char[3][3];
-        currentPlayer = 'X';
-        initializeBoard();
-
-        boolean isAuto = args.length > 0 && args[0].equalsIgnoreCase("auto");
-
-        System.out.println("Tic Tac Toe Game");
-        printBoard();
-
-        if (isAuto) {
-            autoPlay(); // Run auto mode (used in Jenkins)
+        if (args.length > 0 && args[0].equalsIgnoreCase("auto")) {
+            autoPlay();
         } else {
-            Scanner scanner = new Scanner(System.in);
-            while (true) {
-                System.out.println("Player " + currentPlayer + ", enter your move (row and column): ");
-                int row = scanner.nextInt();
-                int col = scanner.nextInt();
-
-                if (placeMark(row, col)) {
-                    printBoard();
-
-                    if (checkWin()) {
-                        System.out.println("Player " + currentPlayer + " wins!");
-                        break;
-                    } else if (isDraw()) {
-                        System.out.println("It's a draw!");
-                        break;
-                    }
-
-                    currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
-                } else {
-                    System.out.println("Invalid move. Try again.");
-                }
-            }
-            scanner.close();
+            interactivePlay();
         }
     }
 
-    public static void initializeBoard() {
-        for (int i = 0; i < 3; i++)
-            for (int j = 0; j < 3; j++)
-                board[i][j] = ' ';
+    public static void interactivePlay() {
+        Scanner scanner = new Scanner(System.in);
+        char[][] board = new char[3][3];
+        char currentPlayer = 'X';
+
+        System.out.println("Tic Tac Toe Game");
+
+        int moves = 0;
+        while (moves < 9) {
+            printBoard(board);
+            System.out.print("Player " + currentPlayer + ", enter your move (row and column): ");
+            int row = scanner.nextInt();
+            int col = scanner.nextInt();
+
+            if (row < 0 || row > 2 || col < 0 || col > 2 || board[row][col] != '\0') {
+                System.out.println("Invalid move, try again.");
+                continue;
+            }
+
+            board[row][col] = currentPlayer;
+            currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+            moves++;
+        }
+
+        printBoard(board);
+        System.out.println("Game Over!");
+        scanner.close();
     }
 
-    public static void printBoard() {
+    public static void autoPlay() {
+        char[][] board = new char[3][3];
+        char currentPlayer = 'X';
+
+        System.out.println("Auto-playing Tic Tac Toe...");
+
+        for (int i = 0; i < 9; i++) {
+            int row = i / 3;
+            int col = i % 3;
+            board[row][col] = currentPlayer;
+            currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+        }
+
+        printBoard(board);
+        System.out.println("Auto game complete.");
+    }
+
+    public static void printBoard(char[][] board) {
         System.out.println("-------------");
         for (int i = 0; i < 3; i++) {
             System.out.print("| ");
             for (int j = 0; j < 3; j++) {
-                System.out.print(board[i][j] + " | ");
+                System.out.print((board[i][j] == '\0' ? " " : board[i][j]) + " | ");
             }
-            System.out.println();
-            System.out.println("-------------");
-        }
-    }
-
-    public static boolean placeMark(int row, int col) {
-        if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
-            board[row][col] = currentPlayer;
-            return true;
-        }
-        return false;
-    }
-
-    public static boolean checkWin() {
-        // check rows and columns
-        for (int i = 0; i < 3; i++) {
-            if ((board[i][0] == currentPlayer && board[i][1] == currentPlayer && board[i][2] == currentPlayer) ||
-                (board[0][i] == currentPlayer && board[1][i] == currentPlayer && board[2][i] == currentPlayer)) {
-                return true;
-            }
-        }
-
-        // check diagonals
-        if ((board[0][0] == currentPlayer && board[1][1] == currentPlayer && board[2][2] == currentPlayer) ||
-            (board[0][2] == currentPlayer && board[1][1] == currentPlayer && board[2][0] == currentPlayer)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public static boolean isDraw() {
-        for (int i = 0; i < 3; i++)
-            for (int j = 0; j < 3; j++)
-                if (board[i][j] == ' ')
-                    return false;
-        return true;
-    }
-
-    public static void autoPlay() {
-        System.out.println("Running in auto mode...");
-        board = new char[][] {
-            {'X', 'O', 'X'},
-            {'X', 'X', 'O'},
-            {'O', 'X', 'O'}
-        };
-        printBoard();
-
-        if (checkWin()) {
-            System.out.println("Player " + currentPlayer + " wins!");
-        } else if (isDraw()) {
-            System.out.println("It's a draw!");
-        } else {
-            System.out.println("Game is still ongoing.");
+            System.out.println("\n-------------");
         }
     }
 }
