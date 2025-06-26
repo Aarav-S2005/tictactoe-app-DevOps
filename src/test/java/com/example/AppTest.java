@@ -4,83 +4,59 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.reflect.Method;
-
 public class AppTest {
 
-    private char[][] board;
-
     @Before
-    public void setUp() {
-        board = new char[][] {
-            {' ', ' ', ' '},
-            {' ', ' ', ' '},
-            {' ', ' ', ' '}
-        };
+    public void resetBoard() {
+        for (int i = 0; i < 3; i++)
+            for (int j = 0; j < 3; j++)
+                App.board[i][j] = '\0'; // Clear board
     }
 
     @Test
-    public void testHorizontalWin() throws Exception {
-        board[0][0] = board[0][1] = board[0][2] = 'X';
-        assertTrue(invokeCheckWin('X', board));
+    public void testHorizontalWin() {
+        App.board[0][0] = 'X';
+        App.board[0][1] = 'X';
+        App.board[0][2] = 'X';
+        assertTrue(App.checkWin('X'));
     }
 
     @Test
-    public void testVerticalWin() throws Exception {
-        board[0][1] = board[1][1] = board[2][1] = 'O';
-        assertTrue(invokeCheckWin('O', board));
+    public void testVerticalWin() {
+        App.board[0][0] = 'O';
+        App.board[1][0] = 'O';
+        App.board[2][0] = 'O';
+        assertTrue(App.checkWin('O'));
     }
 
     @Test
-    public void testDiagonalWin() throws Exception {
-        board[0][0] = board[1][1] = board[2][2] = 'X';
-        assertTrue(invokeCheckWin('X', board));
+    public void testDiagonalWin() {
+        App.board[0][0] = 'X';
+        App.board[1][1] = 'X';
+        App.board[2][2] = 'X';
+        assertTrue(App.checkWin('X'));
     }
 
     @Test
-    public void testDraw() throws Exception {
-        board = new char[][] {
+    public void testDraw() {
+        char[][] drawBoard = {
             {'X', 'O', 'X'},
-            {'X', 'O', 'O'},
-            {'O', 'X', 'X'}
+            {'X', 'X', 'O'},
+            {'O', 'X', 'O'}
         };
-        assertTrue(invokeIsDraw(board));
+        for (int i = 0; i < 3; i++)
+            for (int j = 0; j < 3; j++)
+                App.board[i][j] = drawBoard[i][j];
+
+        assertTrue(App.isDraw());
     }
 
     @Test
-    public void testNotDraw() throws Exception {
-        board[0][0] = 'X';
-        assertFalse(invokeIsDraw(board));
-    }
-
-    // Helpers to access private static methods in App.java
-    private boolean invokeCheckWin(char player, char[][] testBoard) throws Exception {
-        setBoard(testBoard);
-        setCurrentPlayer(player);
-
-        Method method = App.class.getDeclaredMethod("checkWin");
-        method.setAccessible(true);
-        return (boolean) method.invoke(null);
-    }
-
-    private boolean invokeIsDraw(char[][] testBoard) throws Exception {
-        setBoard(testBoard);
-
-        Method method = App.class.getDeclaredMethod("isDraw");
-        method.setAccessible(true);
-        return (boolean) method.invoke(null);
-    }
-
-    // Inject test board into App class
-    private void setBoard(char[][] testBoard) throws Exception {
-        java.lang.reflect.Field boardField = App.class.getDeclaredField("board");
-        boardField.setAccessible(true);
-        boardField.set(null, testBoard);
-    }
-
-    private void setCurrentPlayer(char player) throws Exception {
-        java.lang.reflect.Field currentPlayerField = App.class.getDeclaredField("currentPlayer");
-        currentPlayerField.setAccessible(true);
-        currentPlayerField.setChar(null, player);
+    public void testNotDraw() {
+        App.board[0][0] = 'X';
+        App.board[0][1] = 'O';
+        App.board[0][2] = 'X';
+        // rest of board is empty
+        assertFalse(App.isDraw());
     }
 }

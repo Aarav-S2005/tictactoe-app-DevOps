@@ -1,8 +1,9 @@
 package com.example;
 
-import java.util.Scanner;
-
 public class App {
+    static char[][] board = new char[3][3];
+    static char currentPlayer = 'X';
+
     public static void main(String[] args) {
         if (args.length > 0 && args[0].equalsIgnoreCase("auto")) {
             autoPlay();
@@ -12,15 +13,12 @@ public class App {
     }
 
     public static void interactivePlay() {
-        Scanner scanner = new Scanner(System.in);
-        char[][] board = new char[3][3];
-        char currentPlayer = 'X';
-
+        java.util.Scanner scanner = new java.util.Scanner(System.in);
         System.out.println("Tic Tac Toe Game");
 
         int moves = 0;
         while (moves < 9) {
-            printBoard(board);
+            printBoard();
             System.out.print("Player " + currentPlayer + ", enter your move (row and column): ");
             int row = scanner.nextInt();
             int col = scanner.nextInt();
@@ -35,17 +33,13 @@ public class App {
             moves++;
         }
 
-        printBoard(board);
+        printBoard();
         System.out.println("Game Over!");
         scanner.close();
     }
 
     public static void autoPlay() {
-        char[][] board = new char[3][3];
-        char currentPlayer = 'X';
-
         System.out.println("Auto-playing Tic Tac Toe...");
-
         for (int i = 0; i < 9; i++) {
             int row = i / 3;
             int col = i % 3;
@@ -53,11 +47,11 @@ public class App {
             currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
         }
 
-        printBoard(board);
+        printBoard();
         System.out.println("Auto game complete.");
     }
 
-    public static void printBoard(char[][] board) {
+    public static void printBoard() {
         System.out.println("-------------");
         for (int i = 0; i < 3; i++) {
             System.out.print("| ");
@@ -66,5 +60,23 @@ public class App {
             }
             System.out.println("\n-------------");
         }
+    }
+
+    // These are used in tests
+    public static boolean checkWin(char player) {
+        for (int i = 0; i < 3; i++) {
+            if (board[i][0] == player && board[i][1] == player && board[i][2] == player) return true;
+            if (board[0][i] == player && board[1][i] == player && board[2][i] == player) return true;
+        }
+        if (board[0][0] == player && board[1][1] == player && board[2][2] == player) return true;
+        if (board[0][2] == player && board[1][1] == player && board[2][0] == player) return true;
+        return false;
+    }
+
+    public static boolean isDraw() {
+        for (int i = 0; i < 3; i++)
+            for (int j = 0; j < 3; j++)
+                if (board[i][j] == '\0') return false;
+        return !checkWin('X') && !checkWin('O');
     }
 }
