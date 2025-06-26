@@ -3,24 +3,30 @@ package com.example;
 import java.util.Scanner;
 
 public class App {
-    static char[][] board = {
+
+    private static char[][] board = {
         {' ', ' ', ' '},
         {' ', ' ', ' '},
         {' ', ' ', ' '}
     };
-    static char currentPlayer = 'X';
+    private static char currentPlayer = 'X';
 
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        boolean gameEnded = false;
+        if (args.length > 0 && args[0].equalsIgnoreCase("auto")) {
+            runAutoMode();
+        } else {
+            runInteractiveMode();
+        }
+    }
 
-        System.out.println("Tic Tac Toe Game");
-        printBoard();
-
-        while (!gameEnded) {
-            System.out.println("Player " + currentPlayer + ", enter your move (row and column): ");
-            int row = sc.nextInt();
-            int col = sc.nextInt();
+    // Interactive mode using Scanner
+    private static void runInteractiveMode() {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            printBoard();
+            System.out.printf("Player %s, enter your move (row and column): ", currentPlayer);
+            int row = scanner.nextInt();
+            int col = scanner.nextInt();
 
             if (row < 0 || row > 2 || col < 0 || col > 2 || board[row][col] != ' ') {
                 System.out.println("Invalid move. Try again.");
@@ -28,60 +34,85 @@ public class App {
             }
 
             board[row][col] = currentPlayer;
-            printBoard();
-
             if (checkWin()) {
-                System.out.println("Player " + currentPlayer + " wins!");
-                gameEnded = true;
-            } else if (isDraw()) {
-                System.out.println("It's a draw!");
-                gameEnded = true;
-            } else {
-                currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+                printBoard();
+                System.out.printf("Player %s wins!\n", currentPlayer);
+                break;
             }
-        }
+            if (isDraw()) {
+                printBoard();
+                System.out.println("It's a draw!");
+                break;
+            }
 
-        sc.close();
+            currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+        }
+        scanner.close();
     }
 
-    public static void printBoard() {
+    // Simulated auto mode for CI
+    private static void runAutoMode() {
+        System.out.println("Running in auto mode...");
+
+        // Predefined moves to simulate a game
+        int[][] moves = {
+            {0, 0}, {1, 1}, {0, 1}, {1, 0}, {0, 2} // X wins
+        };
+
+        for (int[] move : moves) {
+            board[move[0]][move[1]] = currentPlayer;
+            System.out.printf("Player %s moves to (%d, %d)\n", currentPlayer, move[0], move[1]);
+            if (checkWin()) {
+                printBoard();
+                System.out.printf("Player %s wins!\n", currentPlayer);
+                return;
+            }
+            currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+        }
+
+        printBoard();
+        System.out.println("It's a draw!");
+    }
+
+    private static void printBoard() {
         System.out.println("-------------");
         for (char[] row : board) {
             System.out.print("| ");
-            for (char c : row) {
-                System.out.print(c + " | ");
+            for (char cell : row) {
+                System.out.print(cell + " | ");
             }
             System.out.println("\n-------------");
         }
     }
 
-    public static boolean checkWin() {
-        // Rows and Columns
+    private static boolean checkWin() {
+        // Rows, Columns, Diagonals
         for (int i = 0; i < 3; i++) {
-            if ((board[i][0] == currentPlayer &&
-                 board[i][1] == currentPlayer &&
-                 board[i][2] == currentPlayer) ||
-                (board[0][i] == currentPlayer &&
-                 board[1][i] == currentPlayer &&
-                 board[2][i] == currentPlayer)) {
-                return true;
-            }
+            if (board[i][0] == currentPlayer &&
+                board[i][1] == currentPlayer &&
+                board[i][2] == currentPlayer) return true;
+            if (board[0][i] == currentPlayer &&
+                board[1][i] == currentPlayer &&
+                board[2][i] == currentPlayer) return true;
         }
 
-        // Diagonals
-        return (board[0][0] == currentPlayer &&
-                board[1][1] == currentPlayer &&
-                board[2][2] == currentPlayer) ||
-               (board[0][2] == currentPlayer &&
-                board[1][1] == currentPlayer &&
-                board[2][0] == currentPlayer);
+        if (board[0][0] == currentPlayer &&
+            board[1][1] == currentPlayer &&
+            board[2][2] == currentPlayer) return true;
+
+        if (board[0][2] == currentPlayer &&
+            board[1][1] == currentPlayer &&
+            board[2][0] == currentPlayer) return true;
+
+        return false;
     }
 
-    public static boolean isDraw() {
-        for (char[] row : board)
-            for (char cell : row)
-                if (cell == ' ')
-                    return false;
+    private static boolean isDraw() {
+        for (char[] row : board) {
+            for (char cell : row) {
+                if (cell == ' ') return false;
+            }
+        }
         return true;
     }
 }

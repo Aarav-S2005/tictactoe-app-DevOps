@@ -22,7 +22,7 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                sh 'docker build -t tictactoe-app .'
+                sh 'docker run --rm tictactoe-app java -jar app.jar auto'
             }
         }
 
