@@ -20,15 +20,9 @@ pipeline {
             }
         }
 
-        stage('Docker Build') {
+        stage('Run App in Auto Mode') {
             steps {
                 sh 'docker run --rm tictactoe-app java -jar app.jar auto'
-            }
-        }
-
-        stage('Run App') {
-            steps {
-                sh 'docker run --rm tictactoe-app'
             }
         }
     }
