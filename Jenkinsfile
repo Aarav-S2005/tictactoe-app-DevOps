@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/Aarav-S2005/tictactoe-app-DevOps.git'
+                git branch: 'main', url: 'https://github.com/Aarav-S2005/tictactoe-app-DevOps.git'
             }
         }
 
@@ -30,6 +30,15 @@ pipeline {
             steps {
                 sh 'docker run --rm tictactoe-app'
             }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Build and deployment completed successfully!'
+        }
+        failure {
+            echo '❌ Build failed!'
         }
     }
 }
