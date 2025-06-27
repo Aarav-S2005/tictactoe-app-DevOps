@@ -3,8 +3,6 @@ package com.example;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.reflect.Field;
-
 import static org.junit.Assert.*;
 
 public class AppTest {
@@ -15,43 +13,54 @@ public class AppTest {
         game = new TicTacToe('X');
     }
 
-    private void setMoves(Player player, int[] moves) throws Exception {
-        Field movesField = Player.class.getDeclaredField("moves");
-        movesField.setAccessible(true);
-        player.moves.clear();
-        for (int move : moves) {
-            player.moves.add(move);
-        }
-    }
-
     @Test
-    public void testHorizontalWin() throws Exception {
-        setMoves(game.p1, new int[]{1, 2, 3});
+    public void testHorizontalWin() {
+        // X: 1, X: 2, X: 3 (interleaved with dummy O moves)
+        game.updateBoard(1); // X
+        game.updateBoard(4); // O
+        game.updateBoard(2); // X
+        game.updateBoard(5); // O
+        game.updateBoard(3); // X
+
         assertEquals(1, game.checkWin());
         assertEquals('X', game.winner);
     }
 
     @Test
-    public void testVerticalWin() throws Exception {
-        setMoves(game.p2, new int[]{1, 4, 7});
-        game.turn = true; // simulate it's p1's turn so p2 just played
+    public void testVerticalWin() {
+        // O: 1, 4, 7 (X starts first)
+        game.updateBoard(2); // X
+        game.updateBoard(1); // O
+        game.updateBoard(3); // X
+        game.updateBoard(4); // O
+        game.updateBoard(5); // X
+        game.updateBoard(7); // O
+
         assertEquals(1, game.checkWin());
         assertEquals('O', game.winner);
     }
 
     @Test
-    public void testDiagonalWin() throws Exception {
-        setMoves(game.p1, new int[]{1, 5, 9});
+    public void testDiagonalWin() {
+        // X: 1, 5, 9 (with O moves in between)
+        game.updateBoard(1); // X
+        game.updateBoard(2); // O
+        game.updateBoard(5); // X
+        game.updateBoard(3); // O
+        game.updateBoard(9); // X
+
         assertEquals(1, game.checkWin());
+        assertEquals('X', game.winner);
     }
 
     @Test
-    public void testDraw() throws Exception {
-        setMoves(game.p1, new int[]{1, 3, 6, 8, 7});
-        setMoves(game.p2, new int[]{2, 4, 5, 9});
-        Field moveNumber = TicTacToe.class.getDeclaredField("move_number");
-        moveNumber.setAccessible(true);
-        moveNumber.setInt(game, 9);
-        assertEquals(0, game.checkWin());
+    public void testDraw() {
+        // Fill the board without a win
+        int[] sequence = {1, 2, 3, 5, 4, 6, 8, 7, 9}; // Ends in draw
+        for (int move : sequence) {
+            game.updateBoard(move);
+        }
+
+        assertEquals(0, game.checkWin()); // 0 = draw
     }
 }
